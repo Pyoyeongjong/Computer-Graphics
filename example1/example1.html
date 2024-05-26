@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Example1</title>
+
+<canvas id="gl-canvas" width="512" height="512">
+    Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+
+
+<div id="uiContainer">
+    <div id="ui">
+        <div id="x"></div>
+        <div id="y"></div>
+        <div id="z"></div>
+    </div>
+</div>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec3 vNormal;
+varying vec4 fColor;
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 lightPosition;
+uniform float shininess;
+
+void main() {
+
+    vec3 pos = -(modelViewMatrix * vPosition).xyz;
+    vec3 light = lightPosition.xyz;
+
+    vec3 L = normalize(light - pos);
+    vec3 E = normalize(-pos);
+    vec3 H = normalize(L + E);
+
+    vec4 NN = vec4(vNormal, 0);
+
+    vec3 N = normalize((modelViewMatrix*NN).xyz);
+    vec4 ambient = ambientProduct;
+
+    float d_val = max( dot(L, N), 0.0);
+    vec4 diffuse = d_val * diffuseProduct;
+
+    float s_val = pow( max(dot(N, H), 0.0), shininess);
+    vec4 specular = s_val * specularProduct;
+
+    if(dot(L, N)< 0.0){
+        specular = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    fColor = ambient + diffuse + specular;
+    fColor.a = 1.0;
+
+    gl_PointSize = 2.0;
+
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+uniform vec4 u_FragColor; 
+varying vec4 fColor;
+
+void
+main()
+{
+    gl_FragColor = fColor + u_FragColor;
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="example1.js"></script>
+
+<meta charset="UTF-8">
+<title>Slider with Label</title>
+<style>
+    .slider-container {
+        display: flex;
+        align-items: center;
+    }
+    .slider-label {
+        margin-right: 10px;
+        font-size: 12px; /* 폰트 크기 조정 */
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+    캔버스 마우스 클릭하면 시점 변환 가능 / 한번 더 클릭하면 고정<br>
+<button id="DirectionX">RotateX</button>
+<button id="DirectionY">RotateY</button>
+<button id="DirectionZ">RotateZ</button>
+<button id="Reset">Reset</button>
+
+<div class="slider-container">
+    <label for="LocationX" class="slider-label">Loc X:</label>
+    <input type="range" id="LocationX" name="LocX" min="-1" max="1" step="0.01">
+    <span id="LX"> 0</span>
+</div>
+
+<div class="slider-container">
+    <label for="LocationY" class="slider-label">Loc Y:</label>
+    <input type="range" id="LocationY" name="LocY" min="-1" max="1" step="0.01">
+    <span id="LY"> 0</span>
+</div>
+
+<div class="slider-container">
+    <label for="LocationZ" class="slider-label">Loc Z:</label>
+    <input type="range" id="LocationZ" name="LocZ" min="-1" max="1" step="0.01">
+    <span id="LZ"> 0</span>
+</div>
+
+<div class="slider-container">
+    <label for="ScaleX" class="slider-label">Scale X:</label>
+    <input type="range" id="ScaleX" name="ScaleX" min="0.01" max="10" step="0.01" value="1">
+    <span id="SX"> 1</span>
+</div>
+
+<div class="slider-container">
+    <label for="ScaleY" class="slider-label">Scale Y:</label>
+    <input type="range" id="ScaleY" name="ScaleY" min="0.01" max="10" step="0.01" value="1">
+    <span id="SY"> 1</span>
+</div>
+
+<div class="slider-container">
+    <label for="ScaleZ" class="slider-label">Scale Z:</label>
+    <input type="range" id="ScaleZ" name="ScaleZ" min="0.01" max="10" step="0.01" value="1">
+    <span id="SZ"> 1</span>
+</div>
+
+<div class="slider-container">
+    <label for="LightX" class="slider-label">Light X:</label>
+    <input type="range" id="LightX" name="LightX" min="-10" max="10" step="0.1" value="0">
+    <span id="LiX"> 0</span>
+</div>
+
+<div class="slider-container">
+    <label for="LightY" class="slider-label">Light Y:</label>
+    <input type="range" id="LightY" name="LightY" min="-10" max="10" step="0.1" value="0">
+    <span id="LiY"> 0</span>
+</div>
+
+<div class="slider-container">
+    <label for="LightZ" class="slider-label">Light Z:</label>
+    <input type="range" id="LightZ" name="LightZ" min="-10" max="10" step="0.1" value="8">
+    <span id="LiZ"> 8</span>
+</div>
+
+</body>
+</html>
